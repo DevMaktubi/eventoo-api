@@ -19,7 +19,11 @@ Route::post("/register", 'App\Http\Controllers\AuthController@register');
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::middleware('auth:sanctum')->post('/logout', 'App\Http\Controllers\AuthController@logout');
 
+// NOTIFICATIONS
+Route::middleware('auth:sanctum')->get('/notifications', 'App\Http\Controllers\NotificationController@index');
+Route::middleware('auth:sanctum')->get('/notifications/mark-all-as-read', 'App\Http\Controllers\NotificationController@markAllAsRead');
 // EVENTS
 Route::get('/events', 'App\Http\Controllers\EventController@index');
 Route::get('/events/{id}', 'App\Http\Controllers\EventController@show');

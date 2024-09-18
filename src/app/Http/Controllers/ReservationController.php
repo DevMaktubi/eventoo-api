@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\ReservationNotification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Reservation;
 use App\Models\Event;
+use App\Mail\TestEmail;
+use Mail;
 
 class ReservationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Reservation::all();
+        $userId = $request->user()->id;
+        return Reservation::where('user_id', $userId)->get();
     }
 
     public function show($id)
@@ -21,8 +26,8 @@ class ReservationController extends Controller
     public function store(Request $request)
     {
         try {
+            $user = $request->user();
             $validatedData = $request->validate([
-                "user_id" => "required|exists:users,id",
                 "event_id" => "required|exists:events,id",
                 "seats_reserved" => "required|integer|gt:0",
             ]);
@@ -33,7 +38,14 @@ class ReservationController extends Controller
                 return response()->json(['errors' => 'Not enough seats'], 422);
             }
 
+            $validatedData['user_id'] = $user->id;
+
             $reservation = Reservation::create($validatedData);
+
+            $reservation->event->event_date = Carbon::parse($reservation->event->event_date)->format('d/m/Y H:i');
+
+            // Mail::to($user->email)->send(new TestEmail($reservation));
+            $user->notify(new ReservationNotification($reservation));
             return $reservation;
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
@@ -47,7 +59,6 @@ class ReservationController extends Controller
         }
         try {
             $request->validate([
-                "user_id" => "exists:users,id",
                 "event_id" => "exists:events,id",
                 "seats_reserved" => "integer|gt:0",
             ]);
