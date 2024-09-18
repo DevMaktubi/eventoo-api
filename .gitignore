@@ -1,0 +1,9 @@
+.env
+.idea/
+/src/.idea/*
+/src/.vscode
+/src/.vagrant
+/src/.DS_Store
+/requests/*.private.env.json
+.docker/nginx/certbot/certificates/*
+src/bootstrap/cache/*
