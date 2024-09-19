@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendReservationEmail;
 use App\Notifications\ReservationNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -45,7 +46,8 @@ class ReservationController extends Controller
             $reservation->event->event_date = Carbon::parse($reservation->event->event_date)->format('d/m/Y H:i');
 
             // Mail::to($user->email)->send(new TestEmail($reservation));
-            $user->notify(new ReservationNotification($reservation));
+            // $user->notify(new ReservationNotification($reservation));
+            SendReservationEmail::dispatch($reservation, $user);
             return $reservation;
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
