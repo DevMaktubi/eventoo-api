@@ -14,6 +14,12 @@ class Event extends Model
         'description',
         'event_date',
         'available_seats',
+        'thumbnail_url'
+    ];
+
+    protected $casts = [
+        'event_date' => 'datetime',
+        'available_seats' => 'integer',
     ];
     public function reservations()
     {
